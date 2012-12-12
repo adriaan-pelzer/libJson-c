@@ -1,4 +1,4 @@
-CFLAGS=-Wall -fPIC -std=c99 -I/usr/local/include/json-c
+CFLAGS=-g -Wall -fPIC -std=c99 -I/usr/local/include/json-c
 LIBS=-L/usr/local/lib -ljson-c
 
 all: libJson
