@@ -1,6 +1,8 @@
 #include "addr.h"
 #include "json.h"
 
+#define STRDUP(TO, FROM) if (FROM != NULL) { DOA("allocate memory for " #TO, malloc, TO, NULL, strlen(FROM) + 1); snprintf(TO, strlen(FROM) + 1, "%s", FROM); }
+
 void freeJsonStruct(jsonStruct_p jS) {
     size_t i = 0;
 
@@ -122,8 +124,10 @@ static int respond_to_type(jsonStruct_p *jS, json_object *val, const char *key, 
 
     jE = &(_jS->elements[_jS->element_len]);
     memset(jE, 0, sizeof(struct jsonElm));
-    DOA("allocate memory for element path", strdup, jE->path, NULL, (const char *) new_ctx);
-    if (key != NULL) { DOA("allocate memory for element path", strdup, jE->key, NULL, (const char *) key); }
+
+    STRDUP(jE->path, new_ctx);
+    STRDUP(jE->key, key);
+
     jE->type = type;
 
     switch(type) {
@@ -168,7 +172,7 @@ static int respond_to_type(jsonStruct_p *jS, json_object *val, const char *key, 
             break;
         case json_type_string:
             syslog(P_DBG, ">>> Element is type string");
-            DOA("allocate memory for element value: stringVal", strdup, jE->value.stringVal, NULL, json_object_get_string(val));
+            STRDUP(jE->value.stringVal, json_object_get_string(val));
             break;
         default:
             syslog(P_ERR, "Json type unknown: %d", jE->type);

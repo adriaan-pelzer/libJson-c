@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <json.h>
 #include <syslog.h>
-#define _POSIX_C_SOURCE 200809L
 #include <string.h>
 
 #ifndef _JSON_H_
