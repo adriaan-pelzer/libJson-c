@@ -11,6 +11,8 @@ jsonStruct_p copyJsonStruct(jsonStruct_p jS) {
         DOA("allocate memory for copied jsonStruct", malloc, _rc, NULL, sizeof(struct jsonStruct));
         memset(_rc, 0, sizeof(struct jsonStruct));
         if (jS->element_len > 0) {
+            _rc->element_len = jS->element_len;
+
             DOA("allocate memory for copied jsonStruct elements", malloc, _rc->elements, NULL, sizeof(struct jsonElm) * jS->element_len);
 
             for (i = 0; i < jS->element_len; i++) {
