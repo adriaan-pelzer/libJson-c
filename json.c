@@ -74,10 +74,16 @@ static int respond_to_type(jsonStruct_p *jS, json_object *val, const char *key, 
     jsonElm_p jE = NULL;
     json_type type = json_object_get_type(val);
     int i = 0, l = 0;
-    char new_ctx[256];
+    char *new_ctx = NULL;
     char *new_ctx_fmt = NULL;
 
-    if (key != NULL) snprintf(new_ctx, 256, "%s|%s", (char *) ctx, (char *) key); else snprintf(new_ctx, 256, "%s", (char *) ctx);
+    if ((key != NULL) && (ctx != NULL)) {
+        DOA("allocate memory for new_ctx", malloc, new_ctx, NULL, strlen(ctx) + strlen(key) + 2);
+        snprintf(new_ctx, strlen(ctx) + strlen(key) + 2, "%s|%s", (char *) ctx, (char *) key);
+    } else if (ctx != NULL) {
+        DOA("allocate memory for new_ctx", malloc, new_ctx, NULL, strlen(ctx) + 1);
+        snprintf(new_ctx, strlen(ctx) + 1, "%s", (char *) ctx);
+    }
 
     syslog(P_DBG, ">>> Responding to context %s", new_ctx);
 
@@ -183,6 +189,7 @@ static int respond_to_type(jsonStruct_p *jS, json_object *val, const char *key, 
     rc = 0;
 over:
     F(new_ctx_fmt);
+    F(new_ctx);
     if (rc != 0) {
         if (jE != NULL) {
             F(jE->path);
