@@ -3,6 +3,60 @@
 
 #define STRDUP(TO, FROM) if (FROM != NULL) { DOA("allocate memory for " #TO, malloc, TO, NULL, strlen(FROM) + 1); snprintf(TO, strlen(FROM) + 1, "%s", FROM); }
 
+jsonStruct_p copyJsonStruct(jsonStruct_p jS) {
+    jsonStruct_p _rc = NULL, rc = NULL;
+    size_t i = 0;
+
+    if (jS) {
+        DOA("allocate memory for copied jsonStruct", malloc, _rc, NULL, sizeof(struct jsonStruct));
+        memset(_rc, 0, sizeof(struct jsonStruct));
+        if (jS->element_len > 0) {
+            DOA("allocate memory for copied jsonStruct elements", malloc, _rc->elements, NULL, sizeof(struct jsonElm) * jS->element_len);
+
+            for (i = 0; i < jS->element_len; i++) {
+                STRDUP(_rc->elements[i].path, jS->elements[i].path);
+                STRDUP(_rc->elements[i].key, jS->elements[i].key);
+                _rc->elements[i].type = jS->elements[i].type;
+                switch(jS->elements[i].type) {
+                    case json_type_null:
+                        break;
+                    case json_type_boolean:
+                        _rc->elements[i].value.booleanVal = jS->elements[i].value.booleanVal;
+                        break;
+                    case json_type_double:
+                        _rc->elements[i].value.doubleVal = jS->elements[i].value.doubleVal;
+                        break;
+                    case json_type_int:
+                        if ((jS->elements[i].key != NULL) && (!strncmp(jS->elements[i].key, "id", 2))) {
+                            _rc->elements[i].value.idVal = jS->elements[i].value.idVal;
+                        } else {
+                            _rc->elements[i].value.intVal = jS->elements[i].value.intVal;
+                        }
+                        break;
+                    case json_type_object:
+                        _rc->elements[i].value.booleanVal = jS->elements[i].value.booleanVal;
+                        break;
+                    case json_type_array:
+                        _rc->elements[i].value.intVal = jS->elements[i].value.intVal;
+                        break;
+                    case json_type_string:
+                        STRDUP(_rc->elements[i].value.stringVal, jS->elements[i].value.stringVal);
+                        break;
+                    default:
+                        syslog(P_ERR, "Json type unknown: %d", jS->elements[i].type);
+                        goto over;
+                }
+                _rc->elements[i].type = jS->elements[i].type;
+            }
+        }
+    }
+
+    rc = _rc;
+over:
+    FFF(_rc, freeJsonStruct, _rc && (rc == NULL));
+    return rc;
+}
+
 void freeJsonStruct(jsonStruct_p jS) {
     size_t i = 0;
 

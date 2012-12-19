@@ -40,6 +40,7 @@ typedef struct jsonStruct {
     size_t element_len;
 } *jsonStruct_p;
 
+jsonStruct_p copyJsonStruct(jsonStruct_p jS);
 jsonStruct_p parseJson(const char *jsonText, const char **paths, size_t pathcount);
 void freeJsonStruct(jsonStruct_p jS);
 int isPath(const jsonStruct_p jS, const char *path);
